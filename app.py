@@ -111,8 +111,8 @@ section[data-testid="stSidebar"] .stButton > button:hover {
 .badge-tc     { background: #d1fae5; color: #065f46; }
 .badge-flag   { background: #fee2e2; color: #991b1b; }
 
-.detail-label { font-size: 0.78rem; font-weight: 600; color: #9ca3af; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
-.detail-value { font-size: 0.97rem; color: #1a2332; margin-bottom: 1rem; }
+.detail-label { font-size: 0.78rem; font-weight: 600; color: #ffffff; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 2px; }
+.detail-value { font-size: 0.97rem; color: #ffffff; margin-bottom: 1rem; }
 
 .visit-row {
     background: #f9fafb;
