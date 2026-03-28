@@ -176,7 +176,7 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════════
 if st.session_state.view == "search":
     st.markdown('<p class="section-header">Find Housing Complexes</p>', unsafe_allow_html=True)
-    st.caption("Search by city or natural language — e.g. *"Show me complexes in Denton"*")
+    st.caption('Search by city or natural language — e.g. *"Show me complexes in Denton"*')
 
     col_q, col_btn = st.columns([5, 1])
     with col_q:
