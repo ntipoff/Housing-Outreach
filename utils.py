@@ -34,22 +34,27 @@ def _detect_cities_from_query(query: str) -> list[str]:
 
 
 # ── Story 1: Search ───────────────────────────────────────────────────────────
-def search_complexes(query: str, cities: list[str]) -> list[dict]:
+def search_complexes(query: str, cities: list[str], state: str | None = None) -> list[dict]:
     """
-    Filter COMPLEXES by city selection and/or NLP query.
+    Filter COMPLEXES by state/city selection and/or NLP query.
     In production: call HUD / TDHCA / 211 Texas API here.
     """
-    active_cities = list(cities)  # from multiselect
+    active_cities = list(cities) if cities else []
+
+    # Start with state filter if provided
+    filtered = [c for c in COMPLEXES if c["state"] == state] if state else list(COMPLEXES)
+
+    # Keep analytics consistent with query city extraction
     if query:
         detected = _detect_cities_from_query(query)
         for c in detected:
             if c not in active_cities:
                 active_cities.append(c)
 
-    if not active_cities:
-        return COMPLEXES  # return all if no filter
+    if active_cities:
+        filtered = [c for c in filtered if c["city"] in active_cities]
 
-    return [c for c in COMPLEXES if c["city"] in active_cities]
+    return filtered
 
 
 # ── Story 2: Detail ───────────────────────────────────────────────────────────

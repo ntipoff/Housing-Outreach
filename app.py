@@ -27,6 +27,10 @@ st.set_page_config(
     initial_sidebar_state="expanded",
 )
 
+# ── Helpers ──────────────────────────────────────────────────────────────────
+STATES = sorted({c["state"] for c in COMPLEXES})
+CITIES = sorted({c["city"] for c in COMPLEXES})
+
 # ── Session state defaults ───────────────────────────────────────────────────
 for key, default in {
     "selected_complex_id": None,
@@ -37,6 +41,7 @@ for key, default in {
     "flags": set(),            # set of flagged complex ids
     "search_results": [],
     "search_query": "",
+    "selected_state": STATES[0] if STATES else None,
     "selected_cities": [],
 }.items():
     if key not in st.session_state:
@@ -143,9 +148,6 @@ section[data-testid="stSidebar"] .stButton > button:hover {
 </style>
 """, unsafe_allow_html=True)
 
-# ── Helpers ──────────────────────────────────────────────────────────────────
-CITIES = ["Lewisville", "Carrollton", "Flower Mound", "Denton"]
-
 def nav(view, complex_id=None):
     st.session_state.view = view
     if complex_id:
@@ -176,23 +178,31 @@ with st.sidebar:
 # ══════════════════════════════════════════════════════════════════════════════
 if st.session_state.view == "search":
     st.markdown('<p class="section-header">Find Housing Complexes</p>', unsafe_allow_html=True)
-    st.caption('Search by city or natural language — e.g. *"Show me complexes in Denton"*')
+    st.caption('Search by state/city or natural language — e.g. *"Show me complexes in Denton"*')
+
+    selected_state = st.selectbox("Select state", options=STATES, index=STATES.index(st.session_state.selected_state) if st.session_state.selected_state in STATES else 0, key="selected_state")
+
+    city_options = sorted({c["city"] for c in COMPLEXES if c["state"] == selected_state})
+    selected_cities = st.multiselect("Filter by city", options=city_options, key="selected_cities")
 
     col_q, col_btn = st.columns([5, 1])
     with col_q:
-        query = st.text_input("", placeholder='e.g. "Low-income housing in Lewisville"',
+        query = st.text_input("Search query", placeholder='e.g. "Low-income housing in Lewisville"',
                               label_visibility="collapsed", key="nlp_query")
     with col_btn:
         st.markdown("<br>", unsafe_allow_html=True)
         search_clicked = st.button("Search", use_container_width=True)
 
-    selected_cities = st.multiselect("Filter by city", CITIES, key="city_filter")
+    # Keep city selections valid for the chosen state
+    if st.session_state.selected_cities:
+        filtered_cities = [c for c in st.session_state.selected_cities if c in city_options]
+        if filtered_cities != st.session_state.selected_cities:
+            st.session_state.selected_cities = filtered_cities
 
-    if search_clicked or selected_cities:
-        results = search_complexes(query, selected_cities)
-        st.session_state.search_results = results
-    else:
-        results = st.session_state.search_results
+    selected_cities = st.session_state.selected_cities
+
+    results = search_complexes(query, selected_cities, selected_state)
+    st.session_state.search_results = results
 
     st.markdown(f"**{len(results)} result(s)**" if results else "")
 
